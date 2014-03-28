@@ -30,6 +30,7 @@ public class OuterUI{
 	JButton btnSignIn ;
 	JButton btnProfile;
 	JButton btnMessages;
+	JButton btnSearch;
 	
 	JLabel lblWelcome;
 	JButton btnSignOut=new JButton();
@@ -51,9 +52,18 @@ public class OuterUI{
 		banner.setVisible(true);
 		frame.getContentPane().add(banner);
 		
-		JButton btnSearch = new JButton("Search");
+		btnSearch = new JButton("Search");
 		btnSearch.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		btnSearch.setBounds(10, 218, 89, 23);
+		btnSearch.setEnabled(false);
+		btnSearch.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				Search s = new Search(panel, authToken, user);
+				s.show(thisStuff);
+				frame.repaint();
+			}
+		});
 		frame.getContentPane().add(btnSearch);
 		
 		JButton btnBrowse = new JButton("Browse");
@@ -74,6 +84,30 @@ public class OuterUI{
 		btnProfile.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		btnProfile.setBounds(10, 116, 89, 23);
 		btnProfile.setEnabled(false);
+		btnProfile.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				JSONObject jsonObject=null;
+				try {
+					Http h = new Http(new URL("http://localhost:9090/ProfileSend?method=getUser&username="+user));
+					String s =h.send();
+					JSONParser parser = new JSONParser();
+					Object obj= parser.parse(s);
+					jsonObject = (JSONObject) obj;
+				} catch (MalformedURLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				
+				Profile p=new Profile(panel,authToken,user, jsonObject);
+				p.show(thisStuff);
+				frame.repaint();
+			}
+		});
 		frame.getContentPane().add(btnProfile);
 		
 		lblWelcome = new JLabel("Welcome, guest!");
@@ -84,6 +118,15 @@ public class OuterUI{
 		btnMessages.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		btnMessages.setBounds(10, 150, 89, 23);
 		btnMessages.setEnabled(false);
+		btnMessages.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				Messages b=new Messages(panel,authToken,user);
+				b.show(thisStuff);
+				panel.repaint();
+				frame.repaint();
+			}
+		});
 		frame.getContentPane().add(btnMessages);
 		
 		
@@ -231,11 +274,13 @@ public class OuterUI{
 	public void setButtonsActive(){
 		btnProfile.setEnabled(true);
 		btnMessages.setEnabled(true);
+		btnSearch.setEnabled(true);
 	}
 	
 	public void setButtonsInactive() {
 		btnProfile.setEnabled(false);
 		btnMessages.setEnabled(false);
+		btnSearch.setEnabled(false);
 	}
 	
 	public void repaintFrame(){
